@@ -1,0 +1,47 @@
+plugins {
+  id "net.saliman.cobertura" version "2.3.2"
+}
+
+apply plugin: 'checkstyle'
+apply plugin: "net.saliman.cobertura"
+
+checkstyle {
+    ignoreFailures = true
+    configFile = rootProject.file("config/checkstyle/checkstyle.xml")
+    configProperties.checkstyleSuppressionsPath = rootProject.file("config/checkstyle/suppressions.xml")
+}
+
+checkstyleTest.exclude '**/*.*'
+
+// Workaround, ignore warning except error.
+task verifyNoCheckstyleWarnings(type: GradleBuild) {
+    doLast {
+        File warningsFile = file('build/reports/checkstyle/main.xml')
+        if (warningsFile.exists() && warningsFile.text.contains("severity=\"error\"")) {
+            throw new GradleException("There were checkstyle warnings! For more info check $warningsFile")
+        }
+    }
+}
+
+checkstyleMain.finalizedBy verifyNoCheckstyleWarnings
+
+cobertura {
+    coverageFormats = ['html']
+    coverageEncoding = 'UTF-8'
+    coverageExcludes = ['.*domain.*',
+                        '.*model.*',
+                        '.*repository.*',
+                        '.*ApplicationRunner.*',
+                        '.*exception.*',
+                        '.*filter.*']
+    coverageIgnoreMethodAnnotations = []
+    coverageCheckBranchRate = 80
+    coverageCheckLineRate = 80
+    coverageCheckPackageBranchRate = 80
+    coverageCheckPackageLineRate = 80
+    coverageCheckTotalBranchRate = 80
+    coverageCheckTotalLineRate = 80
+    coverageIgnoreTrivial = true
+    //TODO temp disable test coverage
+    coverageCheckHaltOnFailure = true
+}
