@@ -1,10 +1,11 @@
 plugins {
   id "net.saliman.cobertura" version "2.3.2"
+  id "com.lv.dbdeploy" version "1.3"
 }
 
 apply plugin: 'checkstyle'
-apply plugin: "net.saliman.cobertura"
 
+// checkstyle
 checkstyle {
     ignoreFailures = true
     configFile = rootProject.file("config/checkstyle/checkstyle.xml")
@@ -25,6 +26,8 @@ task verifyNoCheckstyleWarnings(type: GradleBuild) {
 
 checkstyleMain.finalizedBy verifyNoCheckstyleWarnings
 
+
+// cobertura
 cobertura {
     coverageFormats = ['html']
     coverageEncoding = 'UTF-8'
@@ -44,4 +47,57 @@ cobertura {
     coverageIgnoreTrivial = true
     //TODO temp disable test coverage
     coverageCheckHaltOnFailure = true
+}
+
+// update database
+def envs = [
+        "local"     : [
+                "url"     : "jdbc:mysql://localhost:3306/mydb?useUnicode=yes&characterEncoding=UTF-8",
+                "user"    : "root",
+                "password": ""
+        ],
+        "dev"       : [
+                "url"     : "jdbc:mysql://localhost:3306/mydb?useUnicode=yes&characterEncoding=UTF-8",
+                "user"    : "root",
+                "password": "password"
+        ],
+        "qa"        : [
+                "url"     : "jdbc:mysql://localhost:3306/mydb?useUnicode=yes&characterEncoding=UTF-8",
+                "user"    : "root",
+                "password": "password"
+        ],
+        "uat"       : [
+                "url"     : "jdbc:mysql://localhost:3306/mydb?useUnicode=yes&characterEncoding=UTF-8",
+                "user"    : "root",
+                "password": "password"
+        ],
+        "production": [
+                "url"     : "jdbc:mysql://localhost:3306/mydb?useUnicode=yes&characterEncoding=UTF-8",
+                "user"    : "root",
+                "password": "password"
+        ]
+]
+
+def config = envs["local"];
+
+def dataFiles = [
+        "local": "src/main/resources/db/local",
+        "dev"  : "src/main/resources/db/dev",
+        "qa"   : "src/main/resources/db/qa",
+        "uat"  : "src/main/resources/db/uat",
+        "prod" : "src/main/resources/db/prod"
+]
+
+dbdeploy {
+    if (project.hasProperty("env")) {
+        config = envs["$env"];
+    }
+    if (project.hasProperty("dbfile")) {
+        datafile = dataFiles["$dbfile"];
+    }
+    scriptdirectory = file(datafile)
+    driver = 'com.mysql.jdbc.Driver'
+    url = config.url
+    userid = config.userid
+    password = config.password
 }
