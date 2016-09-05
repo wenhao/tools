@@ -100,16 +100,16 @@ def dataFiles = [
         "prod" : "src/main/resources/db/prod"
 ]
 
+def dataFile = dataFiles["local"];
+
 dbdeploy {
     if (project.hasProperty("env")) {
         config = envs["$env"];
+        dataFile = dataFiles["$env"];
     }
-    if (project.hasProperty("dbfile")) {
-        datafile = dataFiles["$dbfile"];
-    }
-    scriptdirectory = file(datafile)
+    scriptdirectory = file(dataFile)
     driver = 'com.mysql.jdbc.Driver'
     url = config.url
-    userid = config.userid
+    userid = config.user
     password = config.password
 }
