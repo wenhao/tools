@@ -14,6 +14,23 @@ plugins {
 
 apply plugin: 'checkstyle'
 
+idea {
+  project {
+     vcs = 'Git'
+  }
+  module {
+    jdkName = '1.8'
+  }
+}
+
+def compatibility = {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+compileJava(compatibility)
+compileTestJava(compatibility)
+
 // checkstyle
 checkstyle {
     ignoreFailures = true
