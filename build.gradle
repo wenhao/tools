@@ -34,6 +34,8 @@ compileTestJava(compatibility)
 // checkstyle
 checkstyle {
     ignoreFailures = true
+    // compatibility with java 8
+    toolVersion = "6.1.1"
     configFile = rootProject.file("config/checkstyle/checkstyle.xml")
     configProperties.checkstyleSuppressionsPath = rootProject.file("config/checkstyle/suppressions.xml")
 }
@@ -45,13 +47,12 @@ task verifyNoCheckstyleWarnings(type: GradleBuild) {
     doLast {
         File warningsFile = file('build/reports/checkstyle/main.xml')
         if (warningsFile.exists() && warningsFile.text.contains("severity=\"error\"")) {
-            throw new GradleException("There were checkstyle warnings! For more info check $warningsFile")
+            throw new GradleException("There were checkstyle errors! For more info check $warningsFile")
         }
     }
 }
 
 checkstyleMain.finalizedBy verifyNoCheckstyleWarnings
-
 
 // cobertura
 cobertura {
